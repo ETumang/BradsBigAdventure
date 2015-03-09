@@ -1,0 +1,37 @@
+#include "ui.h"
+#include "common.h"
+#include "pin.h"
+
+volatile int score = 0;
+
+void main(void){
+	init_pin();
+	score = 0;
+
+	//Unlock control registers
+	OSCCON = 0x46h;
+	OSCCON = 0x57h;
+	IOLOCK = 0;
+
+	INT1R4 = 1;
+	INT4EP = 1;
+	NSTDIS = 1;
+	INT4IE = 0;
+
+	//lock control registers
+	OSCCON = 0x46h;
+	OSCCON = 0x57h;
+	IOLOCK = 1;
+	
+
+	while(1);
+
+
+}
+
+//ISR
+
+void __attribute__((interrupt, no_auto_psv)) _INT4Interrupt(void){
+	score++;
+	IFS3bits.INT4IF = 0;
+}
