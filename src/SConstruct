@@ -15,11 +15,30 @@ list = Builder(action = 'xc16-objdump -omf=coff -S -D $SOURCE > $TARGET',
                src_suffix = 'cof')
 env.Append(BUILDERS = {'List' : list})
 
-env.Program('score', ['score.c',
+# env.Program('score', ['score.c',
+#                       '../lib/timer.c',
+#                       '../lib/ui.c',
+#                       '../lib/uart.c',
+# 			'../lib/pin.c',
+# 			'../lib/oc.c'])
+# env.Hex('score')
+# env.List('score')
+
+# env.Program('servo_control', ['servo_control.c',
+#                       '../lib/timer.c',
+#                       '../lib/ui.c',
+#                       '../lib/uart.c',
+#       '../lib/pin.c',
+#       '../lib/oc.c'])
+# env.Hex('servo_control')
+# env.List('servo_control')
+
+
+env.Program('ps2_read', ['ps2_read.c',
                       '../lib/timer.c',
                       '../lib/ui.c',
                       '../lib/uart.c',
-			'../lib/pin.c',
-			'../lib/oc.c'])
-env.Hex('score')
-env.List('score')
+      '../lib/pin.c',
+      '../lib/oc.c'])
+env.Hex('ps2_read')
+env.List('ps2_read')
