@@ -4,19 +4,25 @@
 #include "oc.h"
 #include "timer.h"
 #include "uart.h"
-#include <stdio.h>
 
+#define DutyCycle 65536 >> 1
 
-#define FULL_DUTY_CYCLE 2^16
 void main(void){
-
-	int stateFlag = 0;
-
 	init_pin();
 	init_oc();
 	init_ui();
+	init_timer();
 
-/*Configure board:*/
+	int i;
+	int direction = 0;//0 for left, 1 for right
+
+	for(i = 1; i < 9; i++){
+		pin_digitalOut(&D[i]);
+	}
+
+	pin_digitalIn(&D[0]);
+
+	/*Configure board:*/
 	pin_clear(&D[1]);
 	pin_set(&D[2]);
 	pin_clear(&D[3]);
@@ -26,30 +32,31 @@ void main(void){
 	pin_set(&D[7]);//speed
 	pin_clear(&D[8]);//not inverting input
 
-	pin_analogIn(&A[0]);
-
-	oc_pwm(&oc1, &D[6], NULL, 500, 0);
-	oc_pwm(&oc1, &D[5], NULL, 500, 0);
+	oc_pwm(&oc1, &D[6], NULL, 500, DutyCycle);
+	int current_power = DutyCycle;
 
 	while(1){
+		if (!(sw_read(&sw1))){
+	
+			direction = !direction;
+			if(direction){
+				oc_free(&oc1);
+				oc_pwm(&oc1, &D[6], NULL, 100, DutyCycle >> 2);
+				pin_clear(&D[5]);
+				led_on(&led2);
+				led_off(&led3);
+			}
+			if(!direction){
+				oc_free(&oc1);
+				oc_pwm(&oc1, &D[6], NULL, 100, DutyCycle >> 3);
+				pin_clear(&D[6]);
+				led_on(&led3);
+				led_off(&led2);
 
-		if(sw_read(&sw1){
-			stateFlag = (stateFlag++)%3;
+			}
 		}
 
-		switch(stateFlag){
-			case(0):
-				pin_write(&D[5],FULL_DUTY_CYCLE);
-				pin_write(&D[6],0);
-				break;
-			case(1):
-				pin_write(&D[5],FULL_DUTY_CYCLE);
-				pin_write(&D[6],0);
-				break;
-			default:
-				pin_write(&D[5],0);
-				pin_write(&D[6],0);
-				break;
-		}
 	}
+
+	led_on(&led1);
 }

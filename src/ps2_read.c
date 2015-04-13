@@ -3,18 +3,9 @@
 #include "oc.h"
 #include "timer.h"
 #include "ui.h"
-
-#define CLOCK_FREQ 2//how many timer cycles = 1 "clock" cycle
-#define TIMER_FREQ 100//timer frequency in hz
-#define READ_FREQ CLOCK_FREQ/TIMER_FREQ//how many seconds between each keyboard check
-
-
-//Not great, change to read-in-loop later. 
-int bit_counter = 0;
-int press_flag = 0;//currently clocking data?
-unsigned int scan_code = 0;//the clocked in stuff
-
-void read_keyboard(_TIMER *timer);
+#include <p24FJ128GB206.h>
+#include "pin.h"
+#include "keymap.h"
 
 void main(void){
 
@@ -22,44 +13,57 @@ void main(void){
 	init_uart();
 	init_timer();
 	init_ui();
+	init_pin();
 
-	void *readPointer;
-	readPointer = &read_keyboard;
+	volatile uint8_t data;
+	volatile uint8_t new_command = 0;
+	char input = 'a';
+	uint8_t started, bits;
 
-	pin_digitalOut(&D[13]);//clock output
-	pin_clear(&D[13]);
-	pin_digitalIn(&D[12]);//data input
+	pin_digitalIn(&D[7]);//clock input
+	pin_digitalIn(&D[5]);//data input
 
-	timer_setFreq(&timer1,TIMER_FREQ);//just to make data checking easier
+	INTCON2bits.INT4EP = 1;//interrupt on negative edge
+	INTCON1bits.NSTDIS = 1;//no nested interrupts
+	IEC3bits.INT4IE = 1;//enable interrupt
+	RPINR2bits.INT4R = 0xC;//set interrupt to RPin 7
 
-	oc_pwm(&oc2, &D[13], &timer1, CLOCK_FREQ, 2^15);//make clock output
+	IFS3bits.INT4IF = 0;//clear flag
 
-	timer_every(&timer1, CLOCK_FREQ/TIMER_FREQ, readPointer);//set up keyboard reading
-
-	timer_start(&timer1);
+	pin_clear(&D[6]);
 
 	while(1){	
-		if(press_flag){
-			led_on(&led1);
+		if(new_command){
+			input =  pgm_read_byte(&(keymap[data])); //grab character from array
+			new_command = 0;
 		}
 	}
 }
 
-void read_keyboard(_TIMER *timer){
-	if(press_flag && bit_counter < 10){//clocking in code
-		scan_code << 1;
-		scan_code = scan_code && pin_read(&D[12]);
-		bit_counter++;
+void __attribute__((interrupt, no_auto_psv)) _INT4Interrupt(void){
+	
+	if(!started){
+		if(!pin_read(&D[6])){
+			started = 1;
+			bit_count = 0;
+			data = 0;
+			return;
+		}
 	}
-
+	else if(bit_count<=8){
+		data |=(pin_read(&D[6])<<bit_count)
+	
+		bit_count++;
+		return;
+	}
 	else{
-		if(bit_counter == 10){//finished clocking in code
-			press_flag = 0;
-			bit_counter = 0;
-		}
-		if (!pin_read(&D[12])&& !press_flag){//not currently clocking in code, code starts
-			press_flag = 1;
-		}
+		bit_count = 0;
+		started = 0;
+		new_command=1;
 	}
+
+	IFS3bits.INT4IF = 0;
 }
+
+
 

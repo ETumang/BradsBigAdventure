@@ -24,21 +24,30 @@ env.Append(BUILDERS = {'List' : list})
 # env.Hex('score')
 # env.List('score')
 
-# env.Program('servo_control', ['servo_control.c',
-#                       '../lib/timer.c',
-#                       '../lib/ui.c',
-#                       '../lib/uart.c',
-#       '../lib/pin.c',
-#       '../lib/oc.c'])
-# env.Hex('servo_control')
-# env.List('servo_control')
-
-
-env.Program('ps2_read', ['ps2_read.c',
+env.Program('motor_control', ['motor_control.c',
                       '../lib/timer.c',
                       '../lib/ui.c',
                       '../lib/uart.c',
       '../lib/pin.c',
       '../lib/oc.c'])
-env.Hex('ps2_read')
-env.List('ps2_read')
+env.Hex('motor_control')
+env.List('motor_control')
+
+env.Program('servo_control', ['servo_control.c',
+                      '../lib/timer.c',
+                      '../lib/ui.c',
+                      '../lib/uart.c',
+      '../lib/pin.c',
+      '../lib/oc.c'])
+env.Hex('servo_control')
+env.List('servo_control')
+# 
+
+# env.Program('ps2_read', ['ps2_read.c',
+#                       '../lib/timer.c',
+#                       '../lib/ui.c',
+#                       '../lib/uart.c',
+#       '../lib/pin.c',
+#       '../lib/oc.c'])
+# env.Hex('ps2_read')
+# env.List('ps2_read')
