@@ -154,7 +154,7 @@ void loop(){
 		}
 
 
-		switch(input){
+		switch(input){//make this not a switch- move this to game state and make these to-be-executed
 			case START:
 				//start the timer
 				digitalWrite(8, HIGH);
