@@ -16,7 +16,7 @@ void main(void){
 	int i;
 	int direction = 0;//0 for left, 1 for right
 
-	for(i = 1; i < 9; i++){
+	for(i = 1; i < 10; i++){
 		pin_digitalOut(&D[i]);
 	}
 
@@ -48,7 +48,7 @@ void main(void){
 			}
 			if(!direction){
 				oc_free(&oc1);
-				oc_pwm(&oc1, &D[6], NULL, 100, DutyCycle >> 3);
+				oc_pwm(&oc1, &D[5], NULL, 100, DutyCycle >> 3);
 				pin_clear(&D[6]);
 				led_on(&led3);
 				led_off(&led2);
