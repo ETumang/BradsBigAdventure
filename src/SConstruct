@@ -54,12 +54,12 @@ env.Append(BUILDERS = {'List' : list})
 # env.List('ps2_read')
 
 
-env.Program('main', ['main.c',
+env.Program('game_2', ['game_2.c',
                       '../lib/timer.c',
                       '../lib/ui.c',
                       '../lib/uart.c',
                       '../lib/keymap.h',
       '../lib/pin.c',
       '../lib/oc.c'])
-env.Hex('main')
-env.List('main')
+env.Hex('game_2')
+env.List('game_2')
